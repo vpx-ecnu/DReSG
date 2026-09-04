@@ -1,0 +1,67 @@
+# Python caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Test and lint caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.hypothesis/
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local environment/secrets
+.env
+.env.*
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Hydra / experiment launch outputs
+.hydra/
+multirun/
+outputs/
+output/
+logs/
+wandb/
+
+# Local data, checkpoints, and CUDA extension caches
+/data/
+/datasets/
+/checkpoints/
+/_torch_extensions/
+/torch_extensions/
+
+# Heavy generated artifacts
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.npz
+*.npy
+*.ply
+*.obj
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.log
+*.tmp

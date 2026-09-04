@@ -1,0 +1,17 @@
+# @package _global_
+data:
+  base_ply: /path/to/point_cloud.ply
+  scene_dir: /path/to/llff/flower
+  style_image: /path/to/style.png
+  output_dir: outputs/smoke_test
+  views: [14, 25]
+
+schedule:
+  prefixes: [1]
+  fit_steps: 1
+
+guidance:
+  optimization:
+    num_inference_steps: 2
+    learning_rate: 0.01
+    inner_iterations: 1

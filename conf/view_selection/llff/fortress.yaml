@@ -1,0 +1,10 @@
+# @package _global_
+view_selection:
+  dataset: llff
+  scene: fortress
+  candidate_count: 42
+  selected_count: 18
+  coverage_ratio: 0.9901904008
+
+data:
+  views: [20, 11, 30, 5, 36, 2, 12, 28, 0, 7, 4, 24, 18, 21, 3, 8, 32, 1]

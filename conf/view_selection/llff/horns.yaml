@@ -1,0 +1,10 @@
+# @package _global_
+view_selection:
+  dataset: llff
+  scene: horns
+  candidate_count: 62
+  selected_count: 29
+  coverage_ratio: 0.9815123435
+
+data:
+  views: [25, 55, 46, 1, 8, 60, 38, 45, 5, 52, 9, 18, 10, 44, 4, 22, 59, 54, 16, 27, 0, 49, 7, 28, 57, 12, 20, 42, 34]

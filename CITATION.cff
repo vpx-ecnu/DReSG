@@ -1,0 +1,42 @@
+cff-version: 1.2.0
+message: "If you use DReSG, please cite the paper and this software."
+title: "DReSG: Diffusion Residuals for Stylized Gaussian Splatting"
+type: software
+version: 1.0.0
+date-released: 2026-09-04
+authors:
+  - family-names: Liu
+    given-names: Zhongliang
+    orcid: "https://orcid.org/0009-0005-0013-6201"
+  - family-names: Liu
+    given-names: Wenjie
+    orcid: "https://orcid.org/0009-0008-0088-7701"
+  - family-names: Li
+    given-names: Yang
+    orcid: "https://orcid.org/0000-0001-9427-7665"
+repository-code: "https://github.com/vpx-ecnu/DReSG"
+url: "https://vpx-ecnu.github.io/DReSG-website/"
+keywords:
+  - 3D Gaussian Splatting
+  - stylization
+  - diffusion models
+  - multi-view consistency
+abstract: >-
+  DReSG is a diffusion-guided framework for reference-based stylization of
+  3D Gaussian scenes using residual targets and multi-view Gaussian feedback.
+preferred-citation:
+  type: article
+  title: "DReSG: Diffusion Residuals for Stylized Gaussian Splatting"
+  authors:
+    - family-names: Liu
+      given-names: Zhongliang
+      orcid: "https://orcid.org/0009-0005-0013-6201"
+    - family-names: Liu
+      given-names: Wenjie
+      orcid: "https://orcid.org/0009-0008-0088-7701"
+    - family-names: Li
+      given-names: Yang
+      orcid: "https://orcid.org/0000-0001-9427-7665"
+  year: 2026
+  journal: "arXiv"
+  url: "https://arxiv.org/abs/2608.29048"

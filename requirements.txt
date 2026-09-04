@@ -1,0 +1,32 @@
+# Install torch and torchvision separately for your CUDA version before this file.
+# Example:
+#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+
+diffusers>=0.27,<0.28
+huggingface-hub>=0.21,<0.26
+hydra-core>=1.3
+imageio[ffmpeg]>=2.31
+lpips>=0.1.4
+numpy>=1.24
+omegaconf>=2.3
+Pillow>=10.0
+plyfile>=1.1
+pycolmap>=3.12,<4
+PyYAML>=6.0
+scipy>=1.10
+tqdm>=4.66
+transformers>=4.38,<4.39
+
+# CLIP-S metric helper, pinned to the tested upstream revision.
+git+https://github.com/openai/CLIP.git@ded190a052fdf4585bd685cee5bc96e0310d2c93
+
+# Renderer dependency tested by this release.
+gsplat==1.5.3
+
+# Useful for CUDA extension builds and optional acceleration.
+ninja
+packaging
+
+# Test and lint tooling.
+pytest>=8.0
+ruff>=0.5

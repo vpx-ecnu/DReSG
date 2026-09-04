@@ -1,0 +1,112 @@
+# @package _global_
+defaults:
+  - dresg_schema
+  - _self_
+  - optional view_selection: null
+  - optional experiment: null
+  - override hydra/job_logging: disabled
+
+data:
+  base_ply: ???
+  scene_dir: ???
+  style_image: ???
+  output_dir: ???
+  views: ???
+  factor: 4
+
+runtime:
+  device: cuda:0
+  seed: 42
+  offline_models: false
+
+rendering:
+  render_scale: 1.0
+  teacher_width: 448
+  teacher_height: 320
+
+view_selection:
+  dataset: ""
+  scene: ""
+  candidate_count: 0
+  selected_count: 0
+  coverage_ratio: 0.0
+
+schedule:
+  prefixes: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200]
+  fit_steps: 30
+  max_stages: null
+
+teacher:
+  mode: snr_balanced
+  gamma_max: 2.0
+  scale: 1.0
+
+appearance_optim:
+  lr: 0.05
+  optimize_geometry: true
+  optimize_geometry_quats: true
+  geometry_lr: 0.001
+  geometry_quat_lr: 0.001
+  max_mean_delta: 0.05
+  max_scale_delta: 0.05
+  max_quat_delta: 0.02
+
+image_loss:
+  lambda_l1: 1.0
+  l1_use_unclamped_render: true
+  lambda_dssim: 0.2
+  lambda_img_tv: 0.01
+  lambda_content3d: 0.01
+  content3d_dino_model: facebook/dinov2-base
+  content3d_dino_size: 224
+
+appearance_update:
+  rule: pcgrad
+
+color_transfer:
+  post_enabled: true
+  post_fit_steps: 50
+
+debug:
+  collect_stage_diagnostics: false
+
+guidance:
+  backbone:
+    model_id: stable-diffusion-v1-5/stable-diffusion-v1-5
+    mixed_precision: bf16
+  attention:
+    layers:
+      - up_blocks.2.attentions.0.transformer_blocks.0.attn1
+      - up_blocks.2.attentions.1.transformer_blocks.0.attn1
+      - up_blocks.2.attentions.2.transformer_blocks.0.attn1
+      - up_blocks.3.attentions.0.transformer_blocks.0.attn1
+      - up_blocks.3.attentions.1.transformer_blocks.0.attn1
+      - up_blocks.3.attentions.2.transformer_blocks.0.attn1
+    reference_add_noise: false
+    content_weight: 0.15
+    query_scale: 1.0
+  optimization:
+    num_inference_steps: 200
+    learning_rate: 0.05
+    inner_iterations: 1
+    view_batch_size: 32
+  feedback:
+    mode: render_latent
+
+artifacts:
+  save_train_views: true
+  save_style_image: true
+  video:
+    path: null
+    fps: 30
+    batch_size: 1
+
+hydra:
+  output_subdir: .hydra
+  job:
+    chdir: false
+  run:
+    dir: ${data.output_dir}
+  sweep:
+    dir: ${data.output_dir}
+    subdir: ${hydra.job.num}

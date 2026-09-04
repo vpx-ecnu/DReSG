@@ -1,0 +1,13 @@
+# @package _global_
+# TNT mainline stylization setting: direct RGB with bounded geometry and post color transfer.
+
+data:
+  factor: 1
+
+guidance:
+  attention:
+    content_weight: 0.10
+
+artifacts:
+  video:
+    batch_size: 8

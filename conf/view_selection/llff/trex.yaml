@@ -1,0 +1,10 @@
+# @package _global_
+view_selection:
+  dataset: llff
+  scene: trex
+  candidate_count: 55
+  selected_count: 21
+  coverage_ratio: 0.9829946043
+
+data:
+  views: [19, 24, 15, 33, 52, 7, 38, 0, 16, 4, 36, 51, 32, 39, 53, 50, 3, 8, 10, 34, 13]

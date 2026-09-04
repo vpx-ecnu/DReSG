@@ -1,0 +1,10 @@
+# @package _global_
+view_selection:
+  dataset: llff
+  scene: flower
+  candidate_count: 34
+  selected_count: 23
+  coverage_ratio: 0.9889182694
+
+data:
+  views: [12, 33, 25, 2, 7, 31, 16, 28, 23, 0, 5, 30, 9, 19, 15, 27, 4, 22, 13, 26, 20, 10, 14]
