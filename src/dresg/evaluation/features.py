@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from collections.abc import Callable, Sequence
 from pathlib import Path
 
@@ -15,6 +16,33 @@ from dresg.utils.images import load_pil_rgb
 
 DEFAULT_CLIP_MODEL = "ViT-B/32"
 DEFAULT_DINO_MODEL = "facebook/dinov2-base"
+
+
+def _validate_request(paths: Sequence[Path], batch_size: int) -> None:
+    if isinstance(batch_size, bool) or not isinstance(batch_size, int):
+        raise TypeError("Feature batch size must be an integer")
+    if batch_size < 1:
+        raise ValueError("Feature batch size must be positive")
+    if not paths:
+        raise ValueError("Feature extraction requires at least one image")
+
+
+def _validated_features(features: list[torch.Tensor], *, name: str) -> torch.Tensor:
+    encoded = torch.cat(features, dim=0)
+    if encoded.ndim != 2 or not all(encoded.shape):
+        raise ValueError(f"{name} features must be a non-empty [N, D] matrix")
+    if not torch.isfinite(encoded).all():
+        raise ValueError(f"{name} features must be finite")
+    if (encoded.norm(dim=-1) == 0).any():
+        raise ValueError(f"{name} features must have nonzero norms")
+    return encoded
+
+
+def _mean_cosine(scores: torch.Tensor) -> float:
+    value = scores.mean().item()
+    if not math.isfinite(value):
+        raise ValueError("Cosine similarity must be finite and non-empty")
+    return value
 
 
 def _clip_model_source(model_name: str, offline_models: bool) -> str:
@@ -52,6 +80,7 @@ class ClipEncoder:
 
     @torch.no_grad()
     def encode(self, paths: Sequence[Path], *, batch_size: int) -> torch.Tensor:
+        _validate_request(paths, batch_size)
         features = []
         for start in range(0, len(paths), batch_size):
             batch_paths = paths[start : start + batch_size]
@@ -61,7 +90,7 @@ class ClipEncoder:
             encoded = self._model.encode_image(batch)
             encoded = F.normalize(encoded, p=2, dim=-1, eps=1e-8)
             features.append(encoded.float().cpu())
-        return torch.cat(features, dim=0)
+        return _validated_features(features, name="CLIP")
 
 
 class DinoEncoder:
@@ -86,6 +115,7 @@ class DinoEncoder:
 
     @torch.no_grad()
     def encode(self, paths: Sequence[Path], *, batch_size: int) -> torch.Tensor:
+        _validate_request(paths, batch_size)
         features = []
         for start in range(0, len(paths), batch_size):
             images = [
@@ -97,15 +127,15 @@ class DinoEncoder:
             outputs = self._model(**inputs)
             encoded = F.normalize(outputs.pooler_output, p=2, dim=-1, eps=1e-8)
             features.append(encoded.float().cpu())
-        return torch.cat(features, dim=0)
+        return _validated_features(features, name="DINO")
 
 
 def mean_cosine_to_reference(features: torch.Tensor, reference: torch.Tensor) -> float:
     scores = features @ reference.mean(dim=0, keepdim=True).T
-    return scores.squeeze(1).mean().item()
+    return _mean_cosine(scores.squeeze(1))
 
 
 def mean_pairwise_cosine(a: torch.Tensor, b: torch.Tensor) -> float:
     if a.shape != b.shape:
         raise ValueError(f"Pairwise feature shapes must match: a={tuple(a.shape)}, b={tuple(b.shape)}")
-    return (a * b).sum(dim=-1).mean().item()
+    return _mean_cosine((a * b).sum(dim=-1))

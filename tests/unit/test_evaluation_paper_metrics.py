@@ -240,9 +240,9 @@ def test_consistency_rejects_mismatched_view_counts() -> None:
 
 
 def test_consistency_evaluates_the_single_available_pair(monkeypatch) -> None:
-    class SpatialLpips(torch.nn.Module):
+    class ScalarLpips(torch.nn.Module):
         def forward(self, a: torch.Tensor, b: torch.Tensor) -> torch.Tensor:
-            return (a - b).square().mean(dim=1, keepdim=True)
+            return (a - b).square().mean().reshape(1, 1, 1, 1)
 
     monkeypatch.setattr(
         "dresg.evaluation.consistency.raft_flow",
@@ -259,7 +259,7 @@ def test_consistency_evaluates_the_single_available_pair(monkeypatch) -> None:
     evaluator = ConsistencyEvaluator(
         raft_model=torch.nn.Identity(),
         raft_transforms=object(),
-        lpips_model=SpatialLpips(),
+        lpips_model=ScalarLpips(),
         device=torch.device("cpu"),
     )
     metrics = evaluator.evaluate(
@@ -270,6 +270,8 @@ def test_consistency_evaluates_the_single_available_pair(monkeypatch) -> None:
     )
 
     assert metrics.rmse == 1.0
+    # Zero flow excludes the outer border: 36 valid pixels out of 64.
+    assert metrics.lpips == 4.0 * 36 / 64
 
 
 def test_evaluate_paper_metrics_with_mocked_models(tmp_path: Path, monkeypatch) -> None:

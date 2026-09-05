@@ -30,6 +30,7 @@ def unpad(x: torch.Tensor, pad: tuple[int, int, int, int]) -> torch.Tensor:
 
 
 def warp_with_mask(x: torch.Tensor, flow: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+    """Backward-sample at grid + flow with RAFT's strict interior validity mask."""
     _, _, height, width = x.shape
     yy, xx = torch.meshgrid(
         torch.arange(height, device=x.device),
@@ -39,7 +40,7 @@ def warp_with_mask(x: torch.Tensor, flow: torch.Tensor) -> tuple[torch.Tensor, t
     grid = torch.stack((xx, yy), dim=0).float()[None] + flow
     gx = 2.0 * grid[:, 0] / max(width - 1, 1) - 1.0
     gy = 2.0 * grid[:, 1] / max(height - 1, 1) - 1.0
-    valid = (gx >= -1.0) & (gx <= 1.0) & (gy >= -1.0) & (gy <= 1.0)
+    valid = (gx > -1.0) & (gx < 1.0) & (gy > -1.0) & (gy < 1.0)
     sampled = F.grid_sample(x, torch.stack((gx, gy), dim=-1), mode="bilinear", align_corners=True)
     return sampled, valid[:, None].float()
 

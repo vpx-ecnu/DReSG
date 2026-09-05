@@ -169,6 +169,16 @@ qualitative/{method}/{scene}/{style}/export_metrics.json
 
 It writes a new output directory containing `paper_metrics.csv`, `paper_metrics.json`, and `paper_metrics_config.json`. Evaluation is fail-fast: missing artifacts, models, or metrics produce no partial result bundle. Pass `--offline-models` to prohibit model downloads; the requested CLIP, DINO, LPIPS AlexNet, and RAFT weights must already be cached.
 
+The default quality protocol matches the original evaluation scripts:
+
+- **CLIP-S:** mean cosine similarity to the style image using CLIP ViT-B/32 and its standard preprocessing.
+- **DINO-C:** mean aligned-view cosine similarity using DINOv2-base (ViT-B/14), its pooled output, and the model's image processor (short edge 256, center crop 224 for the original checkpoint).
+- **ST/LT consistency:** RAFT-Large `C_T_SKHT_V2` estimates forward/backward flow from the original input photos, not Gaussian base renders or stylized images. By default, all input-camera renders are ordered by their manifest view IDs; ST uses gap 1 and LT uses `floor(N/2)`, each with up to six uniformly spaced, rounded start indices.
+- **RMSE:** computed over RGB channels of valid pixels only. Validity requires strictly interior sampling coordinates and forward/backward agreement: squared cycle error `< 0.01 ×` summed squared flow magnitudes `+ 0.5`.
+- **LPIPS:** invalid warped pixels are replaced with the corresponding reference-frame pixels before full-image AlexNet LPIPS (`spatial=False`). This is not a masked average of a spatial LPIPS map.
+
+A sampled pair with no valid pixels, non-finite flow or scores, or invalid CLIP/DINO features aborts evaluation rather than contributing a zero or NaN. No pairs are silently dropped. For historical reproduction, use the same images, view manifest, batch size (8 in the original runs), and model checkpoints; the original DINOv2-base snapshot was `f9e44c814b77203eaa57a6bdbbd535f21ede1415`, which can be supplied as a local directory through `--dino-model`.
+
 ```bash
 PYTHONPATH=src python tools/evaluate_unified_metrics.py \
   --qual-root outputs/my_eval/qualitative \

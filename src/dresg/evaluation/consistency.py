@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -76,7 +77,7 @@ def _load_lpips_model(
             )
     import lpips
 
-    return lpips.LPIPS(net="alex", spatial=True).to(device).eval()
+    return lpips.LPIPS(net="alex", spatial=False).to(device).eval()
 
 
 @torch.no_grad()
@@ -95,7 +96,7 @@ def raft_flow(
 
 
 class ConsistencyEvaluator:
-    """Own RAFT and spatial LPIPS resources for one evaluation run."""
+    """Own RAFT and full-image LPIPS resources for one evaluation run."""
 
     def __init__(
         self,
@@ -141,6 +142,11 @@ class ConsistencyEvaluator:
         gap: int,
         samples: int,
     ) -> ConsistencyMetrics:
+        for name, value in (("gap", gap), ("sample count", samples)):
+            if isinstance(value, bool) or not isinstance(value, int):
+                raise TypeError(f"Consistency {name} must be an integer")
+            if value < 1:
+                raise ValueError(f"Consistency {name} must be positive")
         if len(content_paths) != len(stylized_paths):
             raise ValueError(
                 "Consistency evaluation requires equal content and stylized view counts: "
@@ -151,9 +157,6 @@ class ConsistencyEvaluator:
             raise ValueError(
                 f"Consistency gap {gap} has no valid pair among {len(content_paths)} views"
             )
-        if samples < 1:
-            raise ValueError("Consistency sample count must be positive")
-
         indices = np.linspace(
             0,
             max_start,
@@ -201,6 +204,9 @@ class ConsistencyEvaluator:
                 c0,
                 self._device,
             )
+            pair = f"{idx}->{idx + gap} (gap={gap})"
+            if not (torch.isfinite(fwd).all() & torch.isfinite(bwd).all()):
+                raise ValueError(f"Consistency pair {pair} has non-finite optical flow")
             s0b = s0.unsqueeze(0)
             s1b = s1.unsqueeze(0)
             warped, inbounds = warp_with_mask(s1b, fwd)
@@ -212,28 +218,30 @@ class ConsistencyEvaluator:
             )
             valid = (fb_err < (0.01 * mag + 0.5)) & (inbounds > 0.5)
 
-            valid_count = valid.float().sum().clamp_min(1.0) * warped.shape[1]
+            valid_pixels = valid.sum()
+            if valid_pixels == 0:
+                raise ValueError(f"Consistency pair {pair} has no valid pixels")
+            valid_count = valid_pixels * warped.shape[1]
             rmse = (
                 ((warped - s0b).square() * valid.float()).sum() / valid_count
             ).sqrt()
-            lpips_map = self._lpips_model(
-                warped * 2.0 - 1.0,
+            # Match the original protocol: fill invalid pixels with frame 0,
+            # then evaluate AlexNet LPIPS over the complete image, not a mask
+            # average of a spatial LPIPS map.
+            warped_masked = torch.where(valid.expand_as(warped), warped, s0b)
+            lpips_score = self._lpips_model(
+                warped_masked * 2.0 - 1.0,
                 s0b * 2.0 - 1.0,
             )
-            if lpips_map.ndim != 4:
+            if lpips_score.numel() != 1:
                 raise ValueError(
-                    "Consistency evaluation requires a spatial LPIPS model"
+                    "Consistency evaluation requires scalar, non-spatial LPIPS"
                 )
-            valid_lpips = F.interpolate(
-                valid.float(),
-                size=lpips_map.shape[-2:],
-                mode="nearest",
-            )
-            lpips_score = (
-                (lpips_map * valid_lpips).sum()
-                / valid_lpips.sum().clamp_min(1.0)
-            )
-            lpips_value, rmse_value = torch.stack([lpips_score, rmse]).cpu().tolist()
+            lpips_value, rmse_value = torch.stack(
+                [lpips_score.reshape(()), rmse]
+            ).cpu().tolist()
+            if not all(math.isfinite(value) for value in (lpips_value, rmse_value)):
+                raise ValueError(f"Consistency pair {pair} produced a non-finite metric")
             lpips_scores.append(lpips_value)
             rmse_scores.append(rmse_value)
 
