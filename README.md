@@ -4,7 +4,7 @@
 <h3>Diffusion Residuals for Stylized Gaussian Splatting</h3>
 
 <p>
-  <a href="https://github.com/lzlcs">Zhongliang Liu</a> ·
+  <a href="https://github.com/Lozical">Zhongliang Liu</a> ·
   <a href="https://github.com/Grav1tum">Wenjie Liu</a> ·
   <a href="https://ihpdep.github.io/">Yang Li</a>
 </p>
