@@ -118,22 +118,22 @@ PYTHONPATH=src python -m pytest tests/unit -q
 
 ## Citation
 
-Until the archival proceedings metadata become available, please cite the arXiv preprint:
+Please cite the published conference paper:
 
 ```bibtex
-@misc{liu2026dresg,
-  title         = {DReSG: Diffusion Residuals for Stylized Gaussian Splatting},
-  author        = {Liu, Zhongliang and Liu, Wenjie and Li, Yang},
-  year          = {2026},
-  eprint        = {2608.29048},
-  archivePrefix = {arXiv},
-  primaryClass  = {cs.CV},
-  url           = {https://arxiv.org/abs/2608.29048},
-  note          = {Accepted to Pacific Graphics 2026 (Conference Track)}
+@inproceedings{10.2312:pg.20261018,
+  booktitle = {Pacific Graphics 2026 - Conference Papers and Posters},
+  editor    = {He, Ying and Thuerey, Nils and Liu, Lingjie},
+  title     = {{DReSG: Diffusion Residuals for Stylized Gaussian Splatting}},
+  author    = {Liu, Zhongliang and Liu, Wenjie and Li, Yang},
+  year      = {2026},
+  publisher = {The Eurographics Association},
+  ISBN      = {978-3-03868-327-8},
+  DOI       = {10.2312/pg.20261018}
 }
 ```
 
-The repository also provides [CITATION.cff](CITATION.cff). It will be updated with the final proceedings DOI and bibliographic information after publication.
+The published paper is available at [doi:10.2312/pg.20261018](https://doi.org/10.2312/pg.20261018). The repository also provides [CITATION.cff](CITATION.cff) with the preferred paper citation.
 
 ## Responsible Use
 

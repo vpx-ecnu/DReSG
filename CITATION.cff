@@ -25,7 +25,7 @@ abstract: >-
   DReSG is a diffusion-guided framework for reference-based stylization of
   3D Gaussian scenes using residual targets and multi-view Gaussian feedback.
 preferred-citation:
-  type: article
+  type: conference-paper
   title: "DReSG: Diffusion Residuals for Stylized Gaussian Splatting"
   authors:
     - family-names: Liu
@@ -38,5 +38,16 @@ preferred-citation:
       given-names: Yang
       orcid: "https://orcid.org/0000-0001-9427-7665"
   year: 2026
-  journal: "arXiv"
-  url: "https://arxiv.org/abs/2608.29048"
+  collection-title: "Pacific Graphics 2026 - Conference Papers and Posters"
+  editors:
+    - family-names: He
+      given-names: Ying
+    - family-names: Thuerey
+      given-names: Nils
+    - family-names: Liu
+      given-names: Lingjie
+  publisher:
+    name: "The Eurographics Association"
+  isbn: "978-3-03868-327-8"
+  doi: "10.2312/pg.20261018"
+  url: "https://doi.org/10.2312/pg.20261018"
